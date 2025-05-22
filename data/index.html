@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Control</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Smart Home Control</h1>
+            <div class="user-info">
+                <span id="username"></span>
+                <button id="logout-btn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-label">WiFi:</span>
+                    <span id="wifi-status" class="status-value">Disconnected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">IP:</span>
+                    <span id="ip-address" class="status-value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Uptime:</span>
+                    <span id="uptime" class="status-value">-</span>
+                </div>
+            </div>
+
+            <div class="devices-container">
+                <h2>Devices</h2>
+                <div id="devices-list" class="devices-grid">
+                    <!-- Devices will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="admin-link">
+                <a href="/admin" id="admin-link" class="btn btn-primary">Admin Panel</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>ESP32 Smart Home Control System</p>
+        </footer>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

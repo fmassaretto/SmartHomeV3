@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Smart Home Control</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Panel</h1>
+            <div class="user-info">
+                <span id="username"></span>
+                <button id="logout-btn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="users">Users</button>
+                <button class="tab-btn" data-tab="devices">Devices</button>
+                <button class="tab-btn" data-tab="system">System</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Users Tab -->
+                <div id="users-tab" class="tab-pane active">
+                    <h2>User Management</h2>
+                    <button id="add-user-btn" class="btn btn-success">Add User</button>
+                    <div class="users-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Allowed Devices</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Users will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Devices Tab -->
+                <div id="devices-tab" class="tab-pane">
+                    <h2>Device Management</h2>
+                    <div class="devices-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Channel</th>
+                                    <th>Name</th>
+                                    <th>State</th>
+                                    <th>Alexa Enabled</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table-body">
+                                <!-- Devices will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- System Tab -->
+                <div id="system-tab" class="tab-pane">
+                    <h2>System Information</h2>
+                    <div class="system-info">
+                        <div class="info-item">
+                            <span class="info-label">WiFi SSID:</span>
+                            <span id="wifi-ssid" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">WiFi Signal:</span>
+                            <span id="wifi-signal" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">IP Address:</span>
+                            <span id="ip-address-admin" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime:</span>
+                            <span id="uptime-admin" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Free Memory:</span>
+                            <span id="free-memory" class="info-value">-</span>
+                        </div>
+                    </div>
+                    <div class="firmware-update">
+                        <h3>Firmware Update</h3>
+                        <p>Use the button below to access the OTA update interface.</p>
+                        <a href="/update" class="btn btn-warning">OTA Update</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>ESP32 Smart Home Control System</p>
+            <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+        </footer>
+    </div>
+
+    <!-- Modal for adding/editing users -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2 id="modal-title">Add User</h2>
+            <form id="user-form">
+                <input type="hidden" id="edit-mode" value="add">
+                <div class="form-group">
+                    <label for="user-username">Username</label>
+                    <input type="text" id="user-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-password">Password</label>
+                    <input type="password" id="user-password" name="password" required>
+                    <small id="password-hint">Leave empty to keep current password when editing</small>
+                </div>
+                <div class="form-group">
+                    <label for="user-role">Role</label>
+                    <select id="user-role" name="role">
+                        <option value="0">Admin</option>
+                        <option value="1">Operator</option>
+                        <option value="2">Viewer</option>
+                    </select>
+                </div>
+                <div class="form-group" id="allowed-devices-group">
+                    <label>Allowed Devices</label>
+                    <div id="allowed-devices-checkboxes">
+                        <!-- Device checkboxes will be added here dynamically -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-user-btn">Cancel</button>
+                </div>
+                <div class="form-message" id="user-form-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>
