@@ -32,7 +32,7 @@ void WebServer::begin() {
     serveStatic();
     
     // Setup OTA updates
-    ElegantOTA.begin(&server);
+    ElegantOTA.begin(server);
     
     // Add event handler
     events->onConnect([this](AsyncEventSourceClient *client) {

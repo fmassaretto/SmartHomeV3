@@ -2,7 +2,7 @@
 #define ALEXA_MANAGER_H
 
 #include <Arduino.h>
-#include <ESPAlexa.h>
+#include <Espalexa.h>
 #include "DeviceManager.h"
 
 class AlexaManager {
@@ -11,8 +11,8 @@ private:
     DeviceManager* deviceManager;
     bool initialized;
     
-    // Callback for Alexa device state changes
-    static void deviceCallback(uint8_t deviceId, const char* deviceName, bool state);
+    // Map to store device IDs by channel
+    std::map<int, uint8_t> deviceIds;
     
 public:
     AlexaManager(DeviceManager* deviceManager);
@@ -32,6 +32,9 @@ public:
     
     // Update all devices in Alexa
     void updateAllDevices();
+    
+    // Device callback (called when Alexa changes device state)
+    void deviceCallback(int channel, uint8_t brightness);
 };
 
 #endif // ALEXA_MANAGER_H

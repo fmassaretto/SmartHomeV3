@@ -21,7 +21,7 @@ def copy_data_dir(source, destination):
 # Get the project directory
 project_dir = Path("__file__").parent.parent
 data_dir = os.path.join(project_dir, "data")
-dest_dir = os.path.join(project_dir, ".pio", "build", "esp32dev", "data")
+dest_dir = os.path.join(project_dir, ".pio", "build", "esp32devV3x", "data")
 
 # Copy data directory to build directory
 if os.path.exists(data_dir):

@@ -148,11 +148,12 @@ void RestApi::handleGetDevices(AsyncWebServerRequest *request) {
     for (Device& device : deviceManager->getAllDevices()) {
         // Check if user can control this device
         bool canControl = (role == UserRole::ADMIN) || userManager->canControlDevice(username, device.channel);
+        bool state = device.outputState[0];
         
         JsonObject deviceObj = devicesArray.createNestedObject();
         deviceObj["channel"] = device.channel;
         deviceObj["name"] = device.name;
-        deviceObj["state"] = device.outputState[0];
+        deviceObj["state"] = state;
         deviceObj["canControl"] = canControl;
         deviceObj["alexaEnabled"] = device.alexaEnabled;
     }

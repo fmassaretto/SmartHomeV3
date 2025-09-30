@@ -22,6 +22,9 @@ public:
     
     // Check if OTA is enabled
     bool isEnabled();
+    
+    // Handle OTA requests (must be called in loop)
+    void handle();
 };
 
 #endif // OTA_MANAGER_H

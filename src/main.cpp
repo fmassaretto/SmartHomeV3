@@ -96,6 +96,9 @@ void loop() {
   // Handle Alexa events
   alexaManager->handle();
   
-  // Nothing else to do in the main loop as most functionality is handled by tasks and async handlers
+  // Handle OTA updates
+  otaManager->handle();
+  
+  // Small delay to prevent watchdog issues
   delay(10);
 }

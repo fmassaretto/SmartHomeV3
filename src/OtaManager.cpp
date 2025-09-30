@@ -8,8 +8,11 @@ OtaManager::OtaManager(AsyncWebServer* server) {
 
 // Initialize OTA manager
 void OtaManager::begin() {
-    // Setup AsyncElegantOTA
-    AsyncElegantOTA.begin(server, "admin", "admin123"); // Default credentials
+    // Setup ElegantOTA
+    ElegantOTA.begin(server); // Initialize ElegantOTA
+    
+    // Set authentication
+    ElegantOTA.setAuth("admin", "admin123");
     
     // Add security middleware to OTA endpoints
     server->on("/update", HTTP_GET, [this](AsyncWebServerRequest *request) {
@@ -25,7 +28,7 @@ void OtaManager::begin() {
         }
         
         // Allow access to OTA update page
-        ElegantOTA.handleRequest(request);
+        request->send(200, "text/html", "<html><head><title>ESP32 OTA Update</title></head><body><h1>ESP32 OTA Update</h1><div id='ota-update'></div><script src='/ElegantOTA.js'></script></body></html>");
     });
     
     Serial.println("OTA manager initialized");
@@ -40,4 +43,9 @@ void OtaManager::setEnabled(bool enabled) {
 // Check if OTA is enabled
 bool OtaManager::isEnabled() {
     return this->otaEnabled;
+}
+
+// Handle OTA requests (must be called in loop)
+void OtaManager::handle() {
+    ElegantOTA.loop();
 }

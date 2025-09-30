@@ -1,15 +1,9 @@
 #include "../include/AlexaManager.h"
 
-// Static callback function
-void AlexaManager::deviceCallback(uint8_t deviceId, const char* deviceName, bool state) {
-    // This is a static method, so we can't access instance variables directly
-    // The actual implementation will be handled in the main code
-}
-
 // Constructor
 AlexaManager::AlexaManager(DeviceManager* deviceManager) {
     this->deviceManager = deviceManager;
-    this->alexa = new ESPAlexa();
+    this->alexa = new Espalexa();
     this->initialized = false;
 }
 
@@ -23,9 +17,6 @@ bool AlexaManager::begin() {
     if (initialized) {
         return true;
     }
-    
-    // Start Alexa service
-    alexa->begin();
     
     // Add all enabled devices to Alexa
     updateAllDevices();
@@ -42,6 +33,15 @@ void AlexaManager::handle() {
     }
 }
 
+// Device callback (called when Alexa changes device state)
+void AlexaManager::deviceCallback(int channel, uint8_t brightness) {
+    // Convert brightness to boolean state (on/off)
+    bool state = brightness > 0;
+    
+    // Toggle device when Alexa changes state
+    deviceManager->toggleDevice(channel, state);
+}
+
 // Add or update device in Alexa
 bool AlexaManager::addOrUpdateDevice(int channel) {
     // Get device from DeviceManager
@@ -50,28 +50,27 @@ bool AlexaManager::addOrUpdateDevice(int channel) {
         return false;
     }
     
-    // Check if device already exists in Alexa
-    bool deviceExists = false;
-    for (uint8_t i = 0; i < alexa->getDeviceCount(); i++) {
-        if (strcmp(alexa->getDeviceName(i), device->alexaName.c_str()) == 0) {
-            deviceExists = true;
-            break;
-        }
-    }
+    // Check if device already exists in Alexa by checking our map
+    bool deviceExists = deviceIds.find(channel) != deviceIds.end();
     
     // Add or update device
     if (deviceExists) {
-        // Update device state
-        alexa->setState(device->alexaName.c_str(), device->outputState[0]);
+        // Update device state (0 = off, 255 = on)
+        alexa->setDeviceState(deviceIds[channel], device->outputState[0] ? 255 : 0);
     } else {
-        // Add new device
-        alexa->addDevice(device->alexaName.c_str(), [this, channel](uint8_t deviceId, const char* deviceName, bool state) {
-            // Toggle device when Alexa changes state
-            deviceManager->toggleDevice(channel, state);
-        });
+        // Add new device with callback
+        uint8_t deviceId = alexa->addDevice(device->alexaName.c_str(), 
+            [this, channel](uint8_t brightness) {
+                // Call our member function with the channel and brightness
+                this->deviceCallback(channel, brightness);
+            }, 
+            EspalexaDeviceType::onoff);
+        
+        // Store device ID in our map
+        deviceIds[channel] = deviceId;
         
         // Set initial state
-        alexa->setState(device->alexaName.c_str(), device->outputState[0]);
+        alexa->setDeviceState(deviceId, device->outputState[0] ? 255 : 0);
     }
     
     return true;
@@ -85,27 +84,52 @@ bool AlexaManager::removeDevice(int channel) {
         return false;
     }
     
-    // Remove device from Alexa
-    alexa->deleteDevice(device->alexaName.c_str());
+    // Check if device exists in our map
+    if (deviceIds.find(channel) != deviceIds.end()) {
+        // Remove device from Espalexa
+        // Note: Espalexa doesn't have a direct method to remove a single device
+        // We'll need to rebuild all devices
+        deviceIds.erase(channel);
+        updateAllDevices();
+    }
     
     return true;
 }
 
 // Update all devices in Alexa
 void AlexaManager::updateAllDevices() {
-    // Clear all devices
-    alexa->deleteDevices();
+    // Clear device IDs map
+    deviceIds.clear();
+    
+    // Clear all devices from Espalexa
+    if (initialized) {
+        delete alexa;
+        alexa = new Espalexa();
+    }
     
     // Add all enabled devices
     for (Device& device : deviceManager->getAllDevices()) {
         if (device.alexaEnabled) {
-            alexa->addDevice(device.alexaName.c_str(), [this, channel = device.channel](uint8_t deviceId, const char* deviceName, bool state) {
-                // Toggle device when Alexa changes state
-                deviceManager->toggleDevice(channel, state);
-            });
+            int channel = device.channel;
+            
+            // Add device with callback
+            uint8_t deviceId = alexa->addDevice(device.alexaName.c_str(), 
+                [this, channel](uint8_t brightness) {
+                    // Call our member function with the channel and brightness
+                    this->deviceCallback(channel, brightness);
+                }, 
+                EspalexaDeviceType::onoff);
+            
+            // Store device ID in our map
+            deviceIds[channel] = deviceId;
             
             // Set initial state
-            alexa->setState(device.alexaName.c_str(), device.outputState[0]);
+            alexa->setDeviceState(deviceId, device.outputState[0] ? 255 : 0);
         }
+    }
+    
+    // Begin Espalexa if we're already initialized
+    if (initialized) {
+        alexa->begin();
     }
 }
